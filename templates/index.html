@@ -26,10 +26,10 @@
         {% for video in videos[-5:] %}
             <li>
                 <iframe width="560" height="315" src="{{ url_for('watch_video', video_id=video[0]) }}" frameborder="0" allowfullscreen></iframe>
-                - Counter: {{ video[2] }}
+                - <span class="counter">Counter: {{ video[2] }}</span>
                 <!-- Add a unique ID to the image to target it in JavaScript -->
                 <form action="{{ url_for('increase_counter', video_id=video[0]) }}" method="post" style="display: inline;">
-                    <button type="button" id="punchImage" onclick="enlargeImage(this, {{ video[0] }})">
+                    <button type="button" id="punchImage" onclick="return enlargeImage(this, {{ video[0] }})">
                         <img src="{{ url_for('static', filename='punch_image.png') }}" alt="Punch Image" width="50" height="50">
                     </button>
                 </form>
@@ -39,37 +39,48 @@
             </li>
         {% endfor %}
     </ul>
+    
 
     <script>
         // JavaScript function to toggle the 'enlarged' class on the image and increment the counter
         function enlargeImage(button, videoId) {
             var image = button.querySelector('img');
-
+    
             // Increment the counter via an AJAX request
             fetch(`/increase_counter/${videoId}`, {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-})
-
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
             .then(response => response.json())
             .then(data => {
                 // Log the response for debugging (optional)
                 console.log(data);
-
+    
                 // Toggle the 'enlarged' class
                 image.classList.toggle('enlarged');
-
+    
                 // Set a timeout to remove the 'enlarged' class after a delay (e.g., 500 milliseconds)
                 setTimeout(function() {
                     image.classList.remove('enlarged');
                 }, 500);
+    
+                // Update the counter text on the page immediately
+                var counterElement = button.parentNode.querySelector('.counter');
+                if (counterElement) {
+                    counterElement.innerText = `Counter: ${data.counter}`;
+                }
             })
             .catch(error => {
                 console.error('Error:', error);
             });
+    
+            // Prevent the default form submission behavior
+            return false;
         }
     </script>
+    
+    
 </body>
 </html>

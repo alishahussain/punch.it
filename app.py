@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
 import re  # Import the regular expression module
+from flask import jsonify
+
 
 app = Flask(__name__)
 
@@ -68,7 +70,14 @@ def increase_counter(video_id):
         cursor.execute('UPDATE videos SET counter = counter + 1 WHERE id = ?', (video_id,))
         conn.commit()
 
-    return redirect(url_for('index'))
+    # Fetch the updated counter value
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute('SELECT counter FROM videos WHERE id = ?', (video_id,))
+        counter = cursor.fetchone()[0]
+
+    # Return the updated counter value as JSON
+    return jsonify({'counter': counter})
 
 # Add this route to handle video deletion
 @app.route('/delete_video/<int:video_id>', methods=['POST'])
