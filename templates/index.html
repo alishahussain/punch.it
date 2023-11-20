@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Video Counter</title>
+</head>
+<body>
+    <h1>YouTube Video Counter</h1>
+    
+    <form action="/" method="post">
+        <label for="video_link">Enter YouTube Video Link:</label>
+        <input type="text" id="video_link" name="video_link" required>
+        <button type="submit">Submit</button>
+    </form>
+
+    <h2>Video List</h2>
+    <ul>
+        {% for video in videos %}
+            <li>
+                <iframe width="560" height="315" src="{{ url_for('watch_video', video_id=video[0]) }}" frameborder="0" allowfullscreen></iframe>
+                - Counter: {{ video[2] }}
+                <form action="{{ url_for('increase_counter', video_id=video[0]) }}" method="post" style="display: inline;">
+                    <button type="submit">Punch it</button>
+                </form>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
