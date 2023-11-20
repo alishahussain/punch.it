@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
+import re  # Import the regular expression module
 
 app = Flask(__name__)
 
@@ -38,7 +39,7 @@ def index():
 
     return render_template('index.html', videos=videos)
 
-@app.route('/watch_video/<int:video_id>', methods=['POST'])
+@app.route('/watch_video/<int:video_id>', methods=['GET'])
 def watch_video(video_id):
     # Fetch the video link from the database
     with get_db() as conn:
@@ -46,7 +47,17 @@ def watch_video(video_id):
         cursor.execute('SELECT link FROM videos WHERE id = ?', (video_id,))
         video_link = cursor.fetchone()[0]
 
-    return render_template('watch_video.html', video_link=video_link, video_id=video_id)
+    # Extract the YouTube video ID from the link using a regular expression
+    video_id_match = re.match(r'(https?://)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)/.+[?=\/]v=([^&=%\?]{11})', video_link)
+    
+    if video_id_match:
+        youtube_video_id = video_id_match.group(5)
+        embed_url = "https://www.youtube.com/embed/VIDEO_ID"
+
+        return render_template('watch_video.html', embed_url=embed_url, video_id=video_id)
+    else:
+        # Handle invalid YouTube link
+        return "Invalid YouTube link"
 
 @app.route('/increase_counter/<int:video_id>', methods=['POST'])
 def increase_counter(video_id):
