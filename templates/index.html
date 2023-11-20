@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dailymotion Video Counter</title>
+    <title>Punch It</title>
 
     <style>
         /* Add a CSS class to define the larger size */
@@ -16,17 +16,17 @@
     <h1>Dailymotion Video Counter</h1>
     
     <form action="/" method="post">
-        <label for="video_link">Enter Dailymotion Video Link:</label>
+        <label for="video_link">Lets Punch:</label>
         <input type="text" id="video_link" name="video_link" required>
-        <button type="submit">Submit</button>
+        <button type="submit">Punch this mofo</button>
     </form>
 
-    <h2>Last 5 Videos</h2>
+    <h2>Recently Punched Celebs</h2>
     <ul>
         {% for video in videos[-5:] %}
             <li>
                 <iframe width="560" height="315" src="{{ url_for('watch_video', video_id=video[0]) }}" frameborder="0" allowfullscreen></iframe>
-                - <span class="counter">Counter: {{ video[2] }}</span>
+                - <span class="counter">Punched: {{ video[2] }} times</span>
                 <!-- Add a unique ID to the image to target it in JavaScript -->
                 <form action="{{ url_for('increase_counter', video_id=video[0]) }}" method="post" style="display: inline;">
                     <button type="button" id="punchImage" onclick="return enlargeImage(this, {{ video[0] }})">
@@ -34,7 +34,7 @@
                     </button>
                 </form>
                 <form action="{{ url_for('delete_video', video_id=video[0]) }}" method="post" style="display: inline;">
-                    <button type="submit">Delete</button>
+                    <button type="submit">Kill 'em</button>
                 </form>
             </li>
         {% endfor %}
