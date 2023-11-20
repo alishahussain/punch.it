@@ -6,17 +6,111 @@
     <title>Punch It</title>
 
     <style>
-        /* Add a CSS class to define the larger size */
-        .enlarged {
-            transform: scale(1.2); /* Increase the size by 20% */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            color: #333;
+        }
+
+        header {
+            background-color: #007bff;
+            color: #fff;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        form {
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        input {
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            margin-bottom: 20px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            overflow: hidden; /* Ensure overflow is hidden to contain the iframe */
+        }
+
+        iframe {
+            width: 100%;
+            height: 315px; /* Adjust the height to display the full iframe */
+            margin-bottom: 10px;
+        }
+
+        .counter {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        button[type="button"] {
+            background-color: #ffc107;
+            color: #333;
+        }
+
+        button[type="submit"] {
+            background-color: #dc3545;
         }
     </style>
 </head>
 <body>
-    <h1>Welcome to Punch It, lets punch somebody</h1>
-    
+    <header>
+        <h1>Welcome to Punch It, let's punch somebody</h1>
+    </header>
+
     <form action="/" method="post">
-        <label for="video_link">Lets Punch:</label>
+        <label for="video_link">Let's Punch:</label>
         <input type="text" id="video_link" name="video_link" required>
         <button type="submit">Punch this mofo</button>
     </form>
@@ -25,28 +119,29 @@
     <ul>
         {% for video in videos[-5:] %}
             <li>
-                <iframe width="560" height="315" src="{{ url_for('watch_video', video_id=video[0]) }}" frameborder="0" allowfullscreen></iframe>
-                - <span class="counter">Punched: {{ video[2] }} times</span>
-                <!-- Add a unique ID to the image to target it in JavaScript -->
-                <form action="{{ url_for('increase_counter', video_id=video[0]) }}" method="post" style="display: inline;">
-                    <button type="button" id="punchImage" onclick="return enlargeImage(this, {{ video[0] }})">
-                        <img src="{{ url_for('static', filename='punch_image.png') }}" alt="Punch Image" width="50" height="50">
-                    </button>
-                </form>
-                <form action="{{ url_for('delete_video', video_id=video[0]) }}" method="post" style="display: inline;">
-                    <button type="submit">Kill 'em</button>
-                </form>
+                <iframe src="{{ url_for('watch_video', video_id=video[0]) }}" frameborder="0" allowfullscreen></iframe>
+                <div class="btn-container">
+                    <span class="counter">Punched: {{ video[2] }} times</span>
+                    <form action="{{ url_for('increase_counter', video_id=video[0]) }}" method="post">
+                        <button type="button" onclick="return enlargeImage(this, {{ video[0] }})">
+                            <img src="{{ url_for('static', filename='punch_image.png') }}" alt="Punch Image">
+                        </button>
+                    </form>
+                    <form action="{{ url_for('delete_video', video_id=video[0]) }}" method="post">
+                        <button type="submit">Kill 'em</button>
+                    </form>
+                </div>
             </li>
         {% endfor %}
     </ul>
-    
 
     <script>
-        // JavaScript function to toggle the 'enlarged' class on the image and increment the counter
         function enlargeImage(button, videoId) {
             var image = button.querySelector('img');
     
-            // Increment the counter via an AJAX request
+            // Toggle the 'enlarged' class directly on the image
+            image.classList.toggle('enlarged');
+    
             fetch(`/increase_counter/${videoId}`, {
                 method: 'POST',
                 headers: {
@@ -55,32 +150,24 @@
             })
             .then(response => response.json())
             .then(data => {
-                // Log the response for debugging (optional)
                 console.log(data);
     
-                // Toggle the 'enlarged' class
-                image.classList.toggle('enlarged');
-    
-                // Set a timeout to remove the 'enlarged' class after a delay (e.g., 500 milliseconds)
-                setTimeout(function() {
-                    image.classList.remove('enlarged');
-                }, 500);
-    
-                // Update the counter text on the page immediately
                 var counterElement = button.parentNode.querySelector('.counter');
                 if (counterElement) {
-                    counterElement.innerText = `Counter: ${data.counter}`;
+                    counterElement.innerText = `Punched: ${data.counter} times`;
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
             });
     
-            // Prevent the default form submission behavior
+            // Set a timeout to remove the 'enlarged' class after a delay (e.g., 500 milliseconds)
+            setTimeout(function() {
+                image.classList.remove('enlarged');
+            }, 500);
+    
             return false;
         }
     </script>
-    
-    
 </body>
 </html>
