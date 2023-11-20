@@ -47,17 +47,18 @@ def watch_video(video_id):
         cursor.execute('SELECT link FROM videos WHERE id = ?', (video_id,))
         video_link = cursor.fetchone()[0]
 
-    # Extract the YouTube video ID from the link using a regular expression
-    video_id_match = re.match(r'(https?://)?(www\.)?(youtube|youtu|youtube-nocookie)\.(com|be)/.+[?=\/]v=([^&=%\?]{11})', video_link)
+    # Extract the Dailymotion video ID from the link using a regular expression
+    video_id_match = re.match(r'https?://www\.dailymotion\.com/video/([a-zA-Z0-9]+)', video_link)
     
     if video_id_match:
-        youtube_video_id = video_id_match.group(5)
-        embed_url = "https://www.youtube.com/embed/VIDEO_ID"
+        dailymotion_video_id = video_id_match.group(1)
+        embed_url = f"https://www.dailymotion.com/embed/video/{dailymotion_video_id}"
 
         return render_template('watch_video.html', embed_url=embed_url, video_id=video_id)
     else:
-        # Handle invalid YouTube link
-        return "Invalid YouTube link"
+        # Handle invalid Dailymotion link
+        return "Invalid Dailymotion link"
+
 
 @app.route('/increase_counter/<int:video_id>', methods=['POST'])
 def increase_counter(video_id):
@@ -65,6 +66,17 @@ def increase_counter(video_id):
     with get_db() as conn:
         cursor = conn.cursor()
         cursor.execute('UPDATE videos SET counter = counter + 1 WHERE id = ?', (video_id,))
+        conn.commit()
+
+    return redirect(url_for('index'))
+
+# Add this route to handle video deletion
+@app.route('/delete_video/<int:video_id>', methods=['POST'])
+def delete_video(video_id):
+    # Delete the video from the database
+    with get_db() as conn:
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM videos WHERE id = ?', (video_id,))
         conn.commit()
 
     return redirect(url_for('index'))
